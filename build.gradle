@@ -96,7 +96,7 @@ assets {
 //---------------- docker ------------------------
 
 String getDockerImageName(){
-    "${name}-${version}"
+    "${group}-${version}"
 }
 
 task buildDockerImage(type:Exec){
