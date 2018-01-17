@@ -1,3 +1,3 @@
 FROM jboss/wildfly:latest
 
-ADD QDPC.war -o /opt/jboss/wildfly/standalone/deployments/
+ADD MSCP.war -o /opt/jboss/wildfly/standalone/deployments/
