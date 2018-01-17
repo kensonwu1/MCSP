@@ -93,14 +93,33 @@ assets {
     minifyCss = true
 }
 
+//---------------- docker ------------------------
 
-task copy(type: Copy) {
-    from 'Dockerfile'
-    into 'build/libs'
+String getDockerImageName(){
+    "${name}-${version}"
 }
 
 task buildDockerImage(type:Exec){
-    group = 'docker'
-    description = 'Build a docker image'
-    commandLine 'java', '-version'
+    group 'docker'
+    description 'Build a docker image'
+    commandLine 'docker', 'build', '-f', 'build/docker/app/Dockerfile', '-t', "${dockerImageName}", 'build/docker/app'
+
+    doFirst {
+        println ">> Creating image: ${dockerImageName}"
+
+        delete 'build/docker/app/'
+
+        copy {
+            from war.archivePath
+            into 'build/docker/app/'
+            rename '(.*)-(.*).war', '$1.war'
+        }
+
+        copy {
+            from('src/docker/'){
+                include 'Dockerfile'
+            }
+            into 'build/docker/app'
+        }
+    }
 }
