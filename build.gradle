@@ -95,11 +95,27 @@ assets {
 
 //---------------- docker ------------------------
 
-String getDockerImageName(){
-    "${group}-${version}"
+String getDockerUserName() {
+    'FoglightDevTest'
 }
 
-task buildDockerImage(type:Exec){
+String getDockerPassword() {
+    'NWQ/e2hKIhaNk67cNkEdKeTyUqYK8szA'
+}
+
+String getDockerRegistry() {
+    "${dockerUserName}.azurecr.io"
+}
+
+String getDockerImageRepository() {
+    "${dockerRegistry}/${group}"
+}
+
+String getDockerImageName() {
+    "${dockerImageRepository}:${version}"
+}
+
+task buildDockerImage(type: Exec, dependsOn: 'war') {
     group 'docker'
     description 'Build a docker image'
     commandLine 'docker', 'build', '-f', 'build/docker/app/Dockerfile', '-t', "${dockerImageName}", 'build/docker/app'
@@ -116,10 +132,27 @@ task buildDockerImage(type:Exec){
         }
 
         copy {
-            from('src/docker/'){
+            from('src/docker/') {
                 include 'Dockerfile'
             }
             into 'build/docker/app'
         }
     }
 }
+
+task loginDockerRegistry(type: Exec) {
+    group 'docker'
+    description 'Login docker registry'
+    commandLine 'docker', 'login', '-u', "${dockerUserName}", '-p', "${dockerPassword}", "${dockerRegistry}"
+}
+
+task pushDockerImage(type: Exec, dependsOn: ['buildDockerImage', 'loginDockerRegistry']) {
+    group 'docker'
+    description 'Push a docker image into docker registry'
+    commandLine 'docker', 'push', "${dockerImageName}"
+    doFirst {
+        println ">> push image: ${dockerImageName}"
+    }
+}
+
+
