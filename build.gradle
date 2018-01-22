@@ -95,25 +95,8 @@ assets {
 
 //---------------- docker ------------------------
 
-String getDockerUserName() {
-    'FoglightDevTest'
-}
+def dockerImageName="${dockerRegistry}/${group}:${version}"
 
-String getDockerPassword() {
-    'NWQ/e2hKIhaNk67cNkEdKeTyUqYK8szA'
-}
-
-String getDockerRegistry() {
-    "${dockerUserName}.azurecr.io"
-}
-
-String getDockerImageRepository() {
-    "${dockerRegistry}/${group}"
-}
-
-String getDockerImageName() {
-    "${dockerImageRepository}:${version}"
-}
 
 task buildDockerImage(type: Exec, dependsOn: 'war') {
     group 'docker'
@@ -155,4 +138,14 @@ task pushDockerImage(type: Exec, dependsOn: ['buildDockerImage', 'loginDockerReg
     }
 }
 
+//---------------- test ------------------------
 
+task mytest() {
+    group 'docker'
+    doFirst{
+        println "${dockerUserName}"
+        println "${dockerPassword}"
+        println "${dockerRegistry}"
+        println "${dockerImageName}"
+    }
+}
