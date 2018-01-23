@@ -17,7 +17,6 @@ plugins {
 }
 
 group "mcsp"
-version "1.0.0"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
@@ -95,9 +94,6 @@ assets {
 
 //---------------- docker ------------------------
 
-def dockerImageName="${dockerRegistry}/${group}:${version}"
-
-
 task buildDockerImage(type: Exec, dependsOn: 'war') {
     group 'docker'
     description 'Build a docker image'
@@ -143,9 +139,9 @@ task pushDockerImage(type: Exec, dependsOn: ['buildDockerImage', 'loginDockerReg
 task mytest() {
     group 'docker'
     doFirst{
-        println "${dockerUserName}"
-        println "${dockerPassword}"
-        println "${dockerRegistry}"
-        println "${dockerImageName}"
+        println "docker name: ${dockerUserName}"
+        println "docker password: ${dockerPassword}"
+        println "docker registry: ${dockerRegistry}"
+        println "docker image name: ${dockerImageName}"
     }
 }
