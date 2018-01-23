@@ -16,4 +16,8 @@ class HelloController {
         String title = book.title
         render "Title: "+title
     }
+
+    def test(){
+        render "Test Update"
+    }
 }

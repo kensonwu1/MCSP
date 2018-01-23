@@ -94,27 +94,35 @@ assets {
 
 //---------------- docker ------------------------
 
-task buildDockerImage(type: Exec, dependsOn: 'war') {
+task removeDanglingImage(type: Exec) {
+    group 'docker'
+    description 'Remove dangling docker images'
+    commandLine 'docker', 'image', 'prune', '-f'
+    doFirst {
+        println ">> Remove dangling docker images"
+    }
+}
+
+task buildDockerImage(type: Exec, dependsOn: ['war']) {
     group 'docker'
     description 'Build a docker image'
     commandLine 'docker', 'build', '-f', 'build/docker/app/Dockerfile', '-t', "${dockerImageName}", 'build/docker/app'
 
     doFirst {
-        println ">> Creating image: ${dockerImageName}"
-
+        println ">> Creating docker image: ${dockerImageName}"
         delete 'build/docker/app/'
-
+        def warName = "${war.baseName}.${war.extension}"
         copy {
             from war.archivePath
             into 'build/docker/app/'
-            rename '(.*)-(.*).war', '$1.war'
+            rename war.archiveName, warName
         }
-
         copy {
             from('src/docker/') {
                 include 'Dockerfile'
             }
             into 'build/docker/app'
+            expand(warName: warName)
         }
     }
 }
@@ -123,6 +131,9 @@ task loginDockerRegistry(type: Exec) {
     group 'docker'
     description 'Login docker registry'
     commandLine 'docker', 'login', '-u', "${dockerUserName}", '-p', "${dockerPassword}", "${dockerRegistry}"
+    doFirst {
+        println ">> login docker registry: ${dockerRegistry}"
+    }
 }
 
 task pushDockerImage(type: Exec, dependsOn: ['buildDockerImage', 'loginDockerRegistry']) {
@@ -130,18 +141,16 @@ task pushDockerImage(type: Exec, dependsOn: ['buildDockerImage', 'loginDockerReg
     description 'Push a docker image into docker registry'
     commandLine 'docker', 'push', "${dockerImageName}"
     doFirst {
-        println ">> push image: ${dockerImageName}"
+        println ">> pushing image: ${dockerImageName}"
     }
 }
 
-//---------------- test ------------------------
-
-task mytest() {
+task docker {
     group 'docker'
-    doFirst{
-        println "docker name: ${dockerUserName}"
-        println "docker password: ${dockerPassword}"
-        println "docker registry: ${dockerRegistry}"
-        println "docker image name: ${dockerImageName}"
-    }
+    description 'Default task for docker group, which will build and push docker image, and prune dangling image'
 }
+docker.dependsOn pushDockerImage, removeDanglingImage
+
+//---------------- default tasks ------------------------
+
+defaultTasks 'docker'
