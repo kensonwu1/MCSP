@@ -94,6 +94,45 @@ assets {
 
 //---------------- docker ------------------------
 
+task buildDockerApp(dependsOn: 'war') {
+    group 'docker'
+    description 'Build docker app'
+    def dockerFileTemp = file("src/docker/Dockerfile")
+    def warFile = file("${war.archivePath}")
+    def warName = "${war.baseName}.${war.extension}"
+    ext.dockerAppDir = 'build/docker/app'
+    ext.dockerAppDockerfile = "${ext.dockerAppDir}/Dockerfile"
+    inputs.file(dockerFileTemp)
+    inputs.file(warFile)
+    inputs.property("warName", warName)
+    outputs.dir(ext.dockerAppDir)
+    doFirst {
+        println ">> Build docker app: ${ext.dockerAppDir}"
+    }
+    doLast {
+        copy {
+            from warFile
+            into ext.dockerAppDir
+            rename war.archiveName, warName
+        }
+        copy {
+            from dockerFileTemp
+            into ext.dockerAppDir
+            expand(warName: warName)
+        }
+    }
+}
+
+task buildDockerImage(type: Exec, dependsOn: 'buildDockerApp') {
+    group 'docker'
+    description 'Build a docker image'
+    commandLine 'docker', 'build', '-f', "${buildDockerApp.dockerAppDockerfile}", '-t', "${dockerImageName}", "${buildDockerApp.dockerAppDir}"
+    doFirst {
+        println ">> Creating docker image: ${dockerImageName}"
+    }
+    onlyIf { buildDockerApp.didWork || project.hasProperty('forceBuildDockerImage') }
+}
+
 task removeDanglingImage(type: Exec) {
     group 'docker'
     description 'Remove dangling docker images'
@@ -103,53 +142,21 @@ task removeDanglingImage(type: Exec) {
     }
 }
 
-task buildDockerImage(type: Exec, dependsOn: ['war']) {
-    group 'docker'
-    description 'Build a docker image'
-    commandLine 'docker', 'build', '-f', 'build/docker/app/Dockerfile', '-t', "${dockerImageName}", 'build/docker/app'
-
-    doFirst {
-        println ">> Creating docker image: ${dockerImageName}"
-        delete 'build/docker/app/'
-        def warName = "${war.baseName}.${war.extension}"
-        copy {
-            from war.archivePath
-            into 'build/docker/app/'
-            rename war.archiveName, warName
-        }
-        copy {
-            from('src/docker/') {
-                include 'Dockerfile'
-            }
-            into 'build/docker/app'
-            expand(warName: warName)
-        }
-    }
-}
-
-task loginDockerRegistry(type: Exec) {
-    group 'docker'
-    description 'Login docker registry'
-    commandLine 'docker', 'login', '-u', "${dockerUserName}", '-p', "${dockerPassword}", "${dockerRegistry}"
-    doFirst {
-        println ">> login docker registry: ${dockerRegistry}"
-    }
-}
-
-task pushDockerImage(type: Exec, dependsOn: ['buildDockerImage', 'loginDockerRegistry']) {
+task pushDockerImage(type: Exec, dependsOn: 'buildDockerImage') {
     group 'docker'
     description 'Push a docker image into docker registry'
+    commandLine 'docker', 'login', '-u', "${dockerUserName}", '-p', "${dockerPassword}", "${dockerRegistry}"
     commandLine 'docker', 'push', "${dockerImageName}"
     doFirst {
         println ">> pushing image: ${dockerImageName}"
     }
+    onlyIf { buildDockerImage.didWork || project.hasProperty('forcePushDockerImage') }
 }
 
-task docker {
+task docker(dependsOn: ['pushDockerImage', 'removeDanglingImage']) {
     group 'docker'
     description 'Default task for docker group, which will build and push docker image, and prune dangling image'
 }
-docker.dependsOn pushDockerImage, removeDanglingImage
 
 //---------------- default tasks ------------------------
 
