@@ -105,6 +105,10 @@ task buildDockerApp(dependsOn: 'war') {
     inputs.file(dockerFileTemp)
     inputs.file(warFile)
     inputs.property("warName", warName)
+    inputs.property("dockerUserName", "${dockerUserName}")
+    inputs.property("dockerPassword", "${dockerPassword}")
+    inputs.property("dockerRegistry", "${dockerRegistry}")
+    inputs.property("dockerImageName", "${dockerImageName}")
     outputs.dir(ext.dockerAppDir)
     doFirst {
         println ">> Build docker app: ${ext.dockerAppDir}"
