@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-//    id "com.palantir.docker" version "0.17.2"
+    id "com.moowork.node" version "1.2.0"
 }
 
 group "mcsp"
@@ -165,3 +165,42 @@ task docker(dependsOn: ['pushDockerImage', 'removeDanglingImage']) {
 //---------------- default tasks ------------------------
 
 defaultTasks 'docker'
+
+//---------------- app ------------------------
+
+task installAppDependencies(type: NpmTask) {
+    group 'app'
+    description = "Installs dependencies from package.json"
+    workingDir = file("${project.projectDir}/src/app")
+    args = ['install']
+    doFirst {
+        println ">> Installing app dependencies"
+    }
+}
+
+task buildApp(type: NpmTask,dependsOn: 'installAppDependencies') {
+    group 'app'
+    description 'Building app.'
+    workingDir = file("${project.projectDir}/src/app")
+    args = ['run-script','build']
+    doFirst {
+        println ">> Building app"
+    }
+}
+
+task assembleApp(dependsOn: 'buildApp') {
+    group 'app'
+    description 'Assemble app.'
+    doFirst {
+        println ">> Assembling app"
+        def appSrc = 'src/app/dist'
+        def appdist= 'src/main/webapp'
+        delete 'src/main/webapp'
+        copy {
+            from appSrc
+            into appdist
+        }
+    }
+}
+war.dependsOn("assembleApp")
+bootRun.dependsOn("assembleApp")
