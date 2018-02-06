@@ -7,8 +7,13 @@ class MicrosoftApiService {
 
     def getLicenseCount(String productId, String skuId, String beneficiaryId) {
 //        TODO
-        int licenseCount = 10
-        log.info "Call microsoft api to get license count: " + licenseCount
-        return licenseCount
+        try{
+            int licenseCount = 10
+            log.info "[Microsoft] Call microsoft api to get license count: " + licenseCount
+            return licenseCount
+        }catch (Exception e){
+            log.error "[Microsoft] Call microsoft api to get license count failed: " + e
+            throw e
+        }
     }
 }
