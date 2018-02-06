@@ -69,6 +69,7 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-api:3.6.0"
 
     runtime 'mysql:mysql-connector-java:5.1.45'
+    compile 'org.grails:grails-datastore-rest-client'
 }
 
 bootRun {

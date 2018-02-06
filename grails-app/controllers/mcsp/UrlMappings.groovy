@@ -3,6 +3,9 @@ package mcsp
 class UrlMappings {
 
     static mappings = {
+        "/cloud/integrations/charon/event/notify"{
+            controller="charonEvent"
+        }
         "/cloud/providers/microsoft/event/notify"{
             controller="microsoftEvent"
         }

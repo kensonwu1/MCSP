@@ -7,6 +7,7 @@ class Subscription {
     String beneficiaryId
     String purchaserId
     int quantity
+    SubscriptionStatusCategory statusCategory
     SubscriptionStatus status
 
     Date dateCreated

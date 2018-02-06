@@ -1,9 +1,9 @@
-package mcsp
+package mcsp.integrations.charon
 
 import grails.testing.services.ServiceUnitTest
 import spock.lang.Specification
 
-class SubscriptionServiceSpec extends Specification implements ServiceUnitTest<SubscriptionService>{
+class CharonEventServiceSpec extends Specification implements ServiceUnitTest<CharonEventService>{
 
     def setup() {
     }
