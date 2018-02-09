@@ -70,6 +70,7 @@ dependencies {
 
     runtime 'mysql:mysql-connector-java:5.1.45'
     compile 'org.grails:grails-datastore-rest-client'
+    compile 'org.grails.plugins:mail:2.0.0'
 }
 
 bootRun {
