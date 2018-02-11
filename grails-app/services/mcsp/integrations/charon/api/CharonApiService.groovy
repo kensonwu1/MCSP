@@ -9,14 +9,41 @@ import org.springframework.util.LinkedMultiValueMap
 
 @Transactional
 class CharonApiService {
-    String CHARON_ID_SERVER = "https://id-qa.quest.com"
-    String CHARON_CLIENT_ID = "dataprotection"
-    String CHARON_CLIENT_SECRET = "3974c295-c04d-4719-aa7a-419f7b7cae48"
-
-    String CHARON_API_SERVER = "https://api-qa.ondemand.quest.com"
-    String CHARON_API = CHARON_API_SERVER + "/v3/api/"
+    def grailsApplication
 
     String MICROSOFT_ACCOUNT_ID = "TestMicrosoftZuoraAccountId"
+
+    String getCharonIdentityURL(){
+        return "${grailsApplication.config.getProperty('charon.identity.server')}/auth/realms/quest/protocol/openid-connect/token"
+    }
+
+    String getCharonIdentityClientID(){
+        return grailsApplication.config.getProperty('charon.identity.client.id')
+    }
+
+    String getCharonIdentityClientSecret(){
+        return grailsApplication.config.getProperty('charon.identity.client.secret')
+    }
+
+    String getCharonAPI(){
+        return "${grailsApplication.config.getProperty('charon.api.server')}/${grailsApplication.config.getProperty('charon.api.version')}/api"
+    }
+
+    String getAccessToken() {
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>()
+        form.add("grant_type", "client_credentials")
+        form.add("client_id", charonIdentityClientID)
+        form.add("client_secret", charonIdentityClientSecret)
+        RestBuilder rest = new RestBuilder()
+        def response = rest.post(charonIdentityURL) {
+            contentType "application/x-www-form-urlencoded"
+            body(form)
+        }
+        def responseJSON = response.json
+        def accessToken = responseJSON.access_token
+        log.debug "[Charon] Get Access Token: " + accessToken
+        return accessToken
+    }
 
     String createSubscription(String productRateplanId, int quantity) {
 //        TODO
@@ -50,26 +77,9 @@ class CharonApiService {
         }
     }
 
-    String getAccessToken() {
-        def url = CHARON_ID_SERVER + "/auth/realms/quest/protocol/openid-connect/token"
-        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>()
-        form.add("grant_type", "client_credentials")
-        form.add("client_id", CHARON_CLIENT_ID)
-        form.add("client_secret", CHARON_CLIENT_SECRET)
-        RestBuilder rest = new RestBuilder()
-        def response = rest.post(url) {
-            contentType "application/x-www-form-urlencoded"
-            body(form)
-        }
-        def responseJSON = response.json
-        def accessToken = responseJSON.access_token
-        log.debug "[Charon] Get Access Token: " + accessToken
-        return accessToken
-    }
-
     def getProduct(String skuId) {
         def accessToken = getAccessToken()
-        def url = CHARON_API + "products/" + skuId
+        def url = "${charonAPI}/products/${skuId}"
         log.info 'token: ' + accessToken
         log.info 'url: ' + url
         RestBuilder rest = new RestBuilder()
