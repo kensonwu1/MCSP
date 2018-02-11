@@ -2,6 +2,7 @@ package mcsp
 
 class Subscription {
     String subscriptionId
+    String productName
     String productId
     String skuId
     String beneficiaryId

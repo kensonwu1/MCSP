@@ -2,11 +2,13 @@ package mcsp.integrations.charon
 
 import grails.gorm.transactions.Transactional
 import mcsp.SubscriptionService
+import mcsp.MailManagerService
 
 @Transactional
 class CharonEventService {
 
     SubscriptionService subscriptionService
+    MailManagerService mailManagerService
 
     boolean auth() {
 //        TODO
@@ -70,18 +72,20 @@ class CharonEventService {
     void activateSubscription(def event){
         String subscriptionId = event.SubscriptionId
         subscriptionService.activate(subscriptionId)
-        //TODO: sending email to customer
+        String licenseInfo = subscriptionService.getLicenseInfo(subscriptionId)
+        mailManagerService.sendSubscriptionActivatedEmail(subscriptionId, licenseInfo)
     }
 
     void updateSubscription(def event){
         String subscriptionId = event.SubscriptionId
         subscriptionService.update(subscriptionId)
-        //TODO: sending email to customer
+        String licenseInfo = subscriptionService.getLicenseInfo(subscriptionId)
+        mailManagerService.sendSubscriptionUpdatedEmail(subscriptionId, licenseInfo)
     }
 
     void cancelSubscription(def event){
         String subscriptionId = event.SubscriptionId
         subscriptionService.cancel(subscriptionId)
-        //TODO: sending email to customer
+        mailManagerService.sendSubscriptionCanceledEmail(subscriptionId)
     }
 }

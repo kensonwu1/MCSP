@@ -79,9 +79,12 @@ class MicrosoftService {
 
         int quantity = microsoftApiService.getLicenseCount(productId, skuId, beneficiaryId)
         String subscriptionId = charonApiService.createSubscription(skuId, quantity)
+        //TODO
+        String productName = "Foglight"
 
         subscriptionService.pendingActivate(
                 subscriptionId,
+                productName,
                 productId,
                 skuId,
                 beneficiaryId,

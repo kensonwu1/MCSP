@@ -79,6 +79,9 @@ a img {
 	padding-top:6px;
 	font-style: oblique;
 }
+.highlight{
+    font-weight: bold;
+}
 </style>
 </head>
 <body>
