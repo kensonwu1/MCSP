@@ -77,18 +77,34 @@ class CharonApiService {
         }
     }
 
-    def getProduct(String skuId) {
-        def accessToken = getAccessToken()
-        def url = "${charonAPI}/products/${skuId}"
-        log.info 'token: ' + accessToken
-        log.info 'url: ' + url
-        RestBuilder rest = new RestBuilder()
-        def response = rest.get(url) {
-            header 'Accept', 'application/json'
-            header 'Authorization', 'Bearer ' + accessToken
+    def getLicenseInfo(String subscriptionId){
+    //        TODO
+        try {
+            log.info "[Charon] Call charon api to get license info: " + subscriptionId
+        } catch (Exception e) {
+            log.error "[Charon] Call charon api to get license info failed: " + e
+            throw e
         }
-        def product = response.json
-        return product
+    }
+
+    def getProduct(String skuId) {
+        try {
+            def accessToken = getAccessToken()
+            def url = "${charonAPI}/products/${skuId}"
+            log.info 'token: ' + accessToken
+            log.info 'url: ' + url
+            RestBuilder rest = new RestBuilder()
+            def response = rest.get(url) {
+                header 'Accept', 'application/json'
+                header 'Authorization', 'Bearer ' + accessToken
+            }
+            def product = response.json
+            log.info "[Charon] Call charon api to get product info: " + product
+            return product
+        } catch (Exception e) {
+            log.error "[Charon] Call charon api to get product info failed: " + e
+            throw e
+        }
     }
 
 
