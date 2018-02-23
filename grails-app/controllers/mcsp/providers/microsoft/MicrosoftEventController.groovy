@@ -9,12 +9,17 @@ class MicrosoftEventController {
 
     def index() {
         if (!microsoftService.auth()) {
-            render(status: 401, text: 'Microsoft authenticate failed.')
+            log.error "[MCSP] Microsoft request authenticate failed."
+            render(status: 401, text: 'Microsoft request authenticate failed.')
             return
         }
 
         def event = request.JSON
-        log.info "[MCSP] Receive Microsoft " + event.eventType + " Event: " + event
+        if(!event){
+            log.error "[MCSP] Microsoft event not found."
+            render(status: 400, text: 'Microsoft event not found.')
+            return
+        }
 
         if (!microsoftService.isSupportedEvent(event)) {
             log.error "[MCSP] Not supported microsoft event of type: " + event.eventType
@@ -29,7 +34,7 @@ class MicrosoftEventController {
         if (handleEventSuccess) {
             render(status: 200, text: 'Microsoft event handle success.')
         } else {
-            render(status: 503, text: 'Microsoft event handle failed.')
+            render(status: 500, text: 'Microsoft event handle failed.')
         }
     }
 

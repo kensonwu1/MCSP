@@ -9,17 +9,24 @@ class CharonEventController {
 
     def index() {
         if (!charonEventService.auth()) {
-            render(status: 401, text: 'Charon authenticate failed.')
+            log.error "[MCSP] Charon request authenticate failed."
+            render(status: 401, text: 'Charon request authenticate failed.')
             return
         }
 
         def event = request.JSON
+        if(!event){
+            log.error "[MCSP] Charon event not found."
+            render(status: 400, text: 'Charon event not found.')
+            return
+        }
+
         if (!charonEventService.isSupportedEvent(event)) {
+            log.error "[MCSP] Not supported charon event type."
             render(status: 403, text: 'Not supported charon event type.')
             return
         }
 
-        log.info "[MCSP] Receive Charon " + event.EventType + "-" + event.SubType + " Event: " + event
         charonEventService.saveEvent(event)
 
         boolean handleEventSuccess = charonEventService.handleEvent(event)
@@ -27,7 +34,7 @@ class CharonEventController {
         if (handleEventSuccess) {
             render(status: 200, text: 'Charon event handle success.')
         } else {
-            render(status: 503, text: 'Charon event handle failed.')
+            render(status: 500, text: 'Charon event handle failed.')
         }
     }
 
