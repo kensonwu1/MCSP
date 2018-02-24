@@ -67,4 +67,14 @@ class SubscriptionService {
     def getExistingSubscription(String subscriptionId) {
         return Subscription.findBySubscriptionId(subscriptionId)
     }
+
+    def getSubscriptionStatus(String subscriptionId) {
+        Subscription subscription = getExistingSubscription(subscriptionId)
+        return subscription.status
+    }
+
+    def getSubscriptionStatus(String productId, String skuId, String beneficiaryId, String purchaserId) {
+        Subscription subscription = getExistingSubscription(productId, skuId, beneficiaryId, purchaserId)
+        return subscription.status
+    }
 }
