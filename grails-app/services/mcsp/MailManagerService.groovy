@@ -4,8 +4,9 @@ import grails.gorm.transactions.Transactional
 import org.springframework.core.io.Resource
 import mcsp.providers.microsoft.api.MicrosoftApiService
 
-@Transactional
 class MailManagerService {
+
+    static transactional = false
 
     def assetResourceLocator
     def grailsApplication
