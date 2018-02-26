@@ -9,8 +9,8 @@ import mcsp.exceptions.SubscriptionNotExistException
 @Transactional
 class MicrosoftService {
 
-    MicrosoftApiService microsoftApiService
-    CharonApiService charonApiService
+    def microsoftApiService
+    def charonApiService
     SubscriptionService subscriptionService
 
     boolean auth() {

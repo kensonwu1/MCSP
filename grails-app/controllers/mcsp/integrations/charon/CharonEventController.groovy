@@ -4,7 +4,7 @@ import mcsp.integrations.charon.api.CharonApiService
 
 class CharonEventController {
 
-    CharonApiService charonApiService
+    def charonApiService
     CharonEventService charonEventService
 
     def index() {

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value
 import geb.spock.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.test.annotation.*
+import mcsp.integrations.charon.api.*
+import mcsp.integrations.charon.api.mock.*
 
 /**
  * See http://www.gebish.org/manual/current/ for more instructions
@@ -15,6 +17,7 @@ import org.springframework.test.annotation.*
 class EventSpec extends GebSpec {
 
     def setup() {
+
     }
 
     def cleanup() {
@@ -114,7 +117,7 @@ class EventSpec extends GebSpec {
     }
 
     def getMockSubscripitonId(){
-        return "TestSubscriptionId"
+        return MockCharonApiService.TEST_SUBSCRIPTION_ID
     }
 
     def isSubscriptionStatus(SubscriptionStatus subscriptionStatus){

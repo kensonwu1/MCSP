@@ -11,7 +11,7 @@ class MailManagerService {
     def assetResourceLocator
     def grailsApplication
     SubscriptionService subscriptionService
-    MicrosoftApiService microsoftApiService
+    def microsoftApiService
 
     def send(String emailFrom, String emailTo, List emailBcc, String emailSubject, String emailTemplate,
              def emailModel, def emailAttach) {
